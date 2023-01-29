@@ -13,3 +13,11 @@ This code is unfinished. It's a learning exercise and it is not the tidiest, mos
 Comments and suggestions are very welcome. I'm here to learn.
 
 Also there's a bunch of unused space on my screen at the moment. Something needs to go in there!
+
+You will need to add to your circuitpython "lib" folder the following files from the Circuitpython bundle:
+
+- adafruit_ntp.mpy
+- adafruit_requests.mpy
+- adafruit_rgbled.mpy
+- simpleio.mpy
+- adafruit_display_text (folder)
