@@ -230,6 +230,16 @@ while True:
             set_date_text()
             lastday = day
         
+        # Update the background colour palette every 30 seconds
+        if second % 30 == 0:
+            time_through_day = (((hour * 60) + minute) * 60) + second
+            percent_through_day = time_through_day / 86400
+            percent_to_midday = 1.0 - ((math.cos(percent_through_day * math.pi * 2) + 1) / 2)
+            hue = ((MIDDAY_HUE - MIDNIGHT_HUE) * percent_to_midday) + MIDNIGHT_HUE
+            sat = ((MIDDAY_SATURATION - MIDNIGHT_SATURATION) * percent_to_midday) + MIDNIGHT_SATURATION
+            val = ((MIDDAY_VALUE - MIDNIGHT_VALUE) * percent_to_midday) + MIDNIGHT_VALUE
+            set_gradient_background_colours(palette, bands, hue, sat, val, hue + HUE_OFFSET, sat, val)
+    
         # Turn auto refresh back on once we've finished updating the display
         display.auto_refresh = True 
 
@@ -239,18 +249,9 @@ while True:
         # Sleep a moment before we go around again
         time.sleep(0.1)
         
-        # Update the background colour palette every 5 seconds
-        if second % 5 == 0:
-            time_through_day = (((hour * 60) + minute) * 60) + second
-            percent_through_day = time_through_day / 86400
-            percent_to_midday = 1.0 - ((math.cos(percent_through_day * math.pi * 2) + 1) / 2)
-            hue = ((MIDDAY_HUE - MIDNIGHT_HUE) * percent_to_midday) + MIDNIGHT_HUE
-            sat = ((MIDDAY_SATURATION - MIDNIGHT_SATURATION) * percent_to_midday) + MIDNIGHT_SATURATION
-            val = ((MIDDAY_VALUE - MIDNIGHT_VALUE) * percent_to_midday) + MIDNIGHT_VALUE
-            set_gradient_background_colours(palette, bands, hue, sat, val, hue + HUE_OFFSET, sat, val)
-    
     # Check for button presses
     if button_read(button_a):
         print("Button A")
     if button_read(button_b):
         print("Button B")
+
