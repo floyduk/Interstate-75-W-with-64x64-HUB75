@@ -1,5 +1,5 @@
 # Holy shit that's a lot of imports
-import adafruit_display_text.label
+import adafruit_display_text.bitmap_label
 import board
 import displayio
 import digitalio
@@ -139,27 +139,29 @@ screen = displayio.Group()
 display.show(screen)
 
 # Create 5 labels for displaying the time
-line1 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="{:02}:{:02}".format(hour, minute))
+timetext = "{:02}:{:02}:{:02}".format(hour, minute, second)
+line1 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=timetext)
 line1.x, line1.y = 0, 1
-line2 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="{:02}:{:02}".format(hour, minute))
+line2 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=timetext)
 line2.x, line2.y = 1, 0
-line3 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="{:02}:{:02}".format(hour, minute))
+line3 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=timetext)
 line3.x, line3.y = 2, 1
-line4 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="{:02}:{:02}".format(hour, minute))
+line4 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=timetext)
 line4.x, line4.y = 1, 2
-line5 = adafruit_display_text.label.Label(terminalio.FONT, color=0xFFFFFF, text="{:02}:{:02}".format(hour, minute))
+line5 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0xFFFFFF, text=timetext)
 line5.x, line5.y = 1, 1
 
 # Create 5 labels for displaying the date
-dateline1 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="date")
+datetext = f"{day} {months[month-1]}"
+dateline1 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=datetext)
 dateline1.x, dateline1.y = 0, 1
-dateline2 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="date")
+dateline2 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=datetext)
 dateline2.x, dateline2.y = 1, 0
-dateline3 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="date")
+dateline3 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=datetext)
 dateline3.x, dateline3.y = 2, 1
-dateline4 = adafruit_display_text.label.Label(terminalio.FONT, color=0x000000, text="date")
+dateline4 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0x000000, text=datetext)
 dateline4.x, dateline4.y = 1, 2
-dateline5 = adafruit_display_text.label.Label(terminalio.FONT, color=0xFFFFFF, text="date")
+dateline5 = adafruit_display_text.bitmap_label.Label(terminalio.FONT, color=0xFFFFFF, text=datetext)
 dateline5.x, dateline5.y = 1, 1
 
 # Create the palette we'll use for the background colour bands
@@ -186,6 +188,8 @@ timegroup.append(line3)
 timegroup.append(line4)
 timegroup.append(line5)
 timegroup.x, timegroup.y = 8, 8
+#timegroup.anchor_point = (0.5, 0.0)
+#timegroup.anchored_position = (31, 1)
 
 # Create a group for the date display
 dategroup = displayio.Group()
@@ -195,6 +199,8 @@ dategroup.append(dateline3)
 dategroup.append(dateline4)
 dategroup.append(dateline5)
 dategroup.x, dategroup.y = 14, 22
+#timegroup.anchor_point = (0.5, 0.0)
+#timegroup.anchored_position = (31, 25)
 
 # Append the time and date display groups to the screen group
 screen.append(timegroup)
