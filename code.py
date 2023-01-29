@@ -21,14 +21,14 @@ import math
 
 # constants for controlling the background colour throughout the day
 MIDDAY_HUE = 1.1
-MIDNIGHT_HUE = 0.8
+MIDNIGHT_HUE = 0.4
 HUE_OFFSET = -0.2
 
 MIDDAY_SATURATION = 1.0
 MIDNIGHT_SATURATION = 1.0
 
 MIDDAY_VALUE = 0.8
-MIDNIGHT_VALUE = 0.3
+MIDNIGHT_VALUE = 0.4
 
 # Lookup list for month
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -97,13 +97,23 @@ def from_hsv(h, s, v):
     if i == 5:
         return ('0x{:02x}{:02x}{:02x}').format(int(v), int(p), int(q))
     
-def set_gradient_background_colours(palette, bands, start_hue, start_sat, start_val, end_hue, end_sat, end_val):
+def set_gradient_background_colours(palette, bands):
+    global hour, minute, second
+    
+    # Calculate the starting colour for the gradient based on the time of day
+    time_through_day = (((hour * 60) + minute) * 60) + second
+    percent_through_day = time_through_day / 86400
+    percent_to_midday = 1.0 - ((math.cos(percent_through_day * math.pi * 2) + 1) / 2)
+    hue = ((MIDDAY_HUE - MIDNIGHT_HUE) * percent_to_midday) + MIDNIGHT_HUE
+    sat = ((MIDDAY_SATURATION - MIDNIGHT_SATURATION) * percent_to_midday) + MIDNIGHT_SATURATION
+    val = ((MIDDAY_VALUE - MIDNIGHT_VALUE) * percent_to_midday) + MIDNIGHT_VALUE
+    start_hue, start_sat, start_val, end_hue, end_sat, end_val = hue, sat, val, hue + HUE_OFFSET, sat, val
+
     for x in range(bands):
         hue = ((end_hue - start_hue) * (x / bands)) + start_hue
         sat = ((end_sat - start_sat) * (x / bands)) + start_sat
         val = ((end_val - start_val) * (x / bands)) + start_val
         colour = from_hsv(hue, sat, val)
-#        print(f"setting palette[{x}] to {colour}")
         palette[x] = int(colour, 16)
 
 def set_time_text():
@@ -116,7 +126,7 @@ def set_time_text():
     line4.text = timetext
     line5.text = timetext
     
-    timegroup.x = int((display.width / 2) - (line5.width / 2))
+    timegroup.x = int((display.width / 2) - (line5.width / 2)) - 1
 
 def set_date_text():
     global month, day, months, dateline1, dateline2, dateline3, dateline4, dateline5, dategroup
@@ -128,7 +138,7 @@ def set_date_text():
     dateline4.text = datetext
     dateline5.text = datetext
 
-    dategroup.x = int((display.width / 2) - (dateline5.width / 2))
+    dategroup.x = int((display.width / 2) - (dateline5.width / 2)) - 1
 
 ########
 # MAIN #
@@ -167,18 +177,14 @@ dateline5.x, dateline5.y = 1, 1
 # Create the palette we'll use for the background colour bands
 bands = 8
 palette = displayio.Palette(bands)
-set_gradient_background_colours(palette, bands, MIDDAY_HUE, MIDDAY_SATURATION, MIDDAY_VALUE, MIDDAY_HUE + HUE_OFFSET, MIDDAY_SATURATION, MIDDAY_VALUE)
+set_gradient_background_colours(palette, bands)
 
 # Create all the bands for the background - each a single rectangle filled with one colour
-b = []
-bg = []
 for i in range(bands):
     bitmap=displayio.Bitmap(64 - (i*8), 64, bands)
     bitmap.fill(i)
     sprite = displayio.TileGrid(bitmap, pixel_shader=palette, x=(i*4), y=0)
     screen.append(sprite)
-    b.append(bitmap)
-    bg.append(sprite)
 
 # Create a group for the time display
 timegroup = displayio.Group()
@@ -187,9 +193,7 @@ timegroup.append(line2)
 timegroup.append(line3)
 timegroup.append(line4)
 timegroup.append(line5)
-timegroup.x, timegroup.y = 8, 8
-#timegroup.anchor_point = (0.5, 0.0)
-#timegroup.anchored_position = (31, 1)
+timegroup.x, timegroup.y = int((display.width / 2) - (line5.width / 2)) - 1, 8
 
 # Create a group for the date display
 dategroup = displayio.Group()
@@ -198,9 +202,7 @@ dategroup.append(dateline2)
 dategroup.append(dateline3)
 dategroup.append(dateline4)
 dategroup.append(dateline5)
-dategroup.x, dategroup.y = 14, 22
-#timegroup.anchor_point = (0.5, 0.0)
-#timegroup.anchored_position = (31, 25)
+dategroup.x, dategroup.y = int((display.width / 2) - (dateline5.width / 2)) - 1, 22
 
 # Append the time and date display groups to the screen group
 screen.append(timegroup)
@@ -210,15 +212,13 @@ print("Starting at: ", line1.text)
 
 # Main loop
 while True:
-    try:
-        year, month, day, hour, minute, second, wday, yday, isdst = time.localtime()
-    except:
-        print("time.localtime took too long")
+    year, month, day, hour, minute, second, wday, yday, isdst = time.localtime()
     
     # Re-sync with NTP every hour
     if hour != lasthour:
         try:
             rtc.RTC().datetime = ntp.datetime
+            print("Synced RTC with NTP.")
             lasthour = hour
         except:
             print("ntp.datetime took too long")
@@ -238,13 +238,7 @@ while True:
         
         # Update the background colour palette every 30 seconds
         if second % 30 == 0:
-            time_through_day = (((hour * 60) + minute) * 60) + second
-            percent_through_day = time_through_day / 86400
-            percent_to_midday = 1.0 - ((math.cos(percent_through_day * math.pi * 2) + 1) / 2)
-            hue = ((MIDDAY_HUE - MIDNIGHT_HUE) * percent_to_midday) + MIDNIGHT_HUE
-            sat = ((MIDDAY_SATURATION - MIDNIGHT_SATURATION) * percent_to_midday) + MIDNIGHT_SATURATION
-            val = ((MIDDAY_VALUE - MIDNIGHT_VALUE) * percent_to_midday) + MIDNIGHT_VALUE
-            set_gradient_background_colours(palette, bands, hue, sat, val, hue + HUE_OFFSET, sat, val)
+            set_gradient_background_colours(palette, bands)
     
         # Turn auto refresh back on once we've finished updating the display
         display.auto_refresh = True 
