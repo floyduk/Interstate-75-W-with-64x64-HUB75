@@ -33,3 +33,11 @@ You will need to add to your circuitpython "lib" folder the following files from
 - adafruit_rgbled.mpy
 - simpleio.mpy
 - adafruit_display_text (folder)
+
+You will also need to create a "settings.toml" file in the root folder of your circuitpy that contains your wifi SSID and password. Your settings.toml should contain at least this:
+
+```
+# Comments are supported
+CIRCUITPY_WIFI_SSID="guest wifi"
+CIRCUITPY_WIFI_PASSWORD="guessable"
+```
