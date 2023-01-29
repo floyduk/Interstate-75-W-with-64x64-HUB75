@@ -14,6 +14,18 @@ Comments and suggestions are very welcome. I'm here to learn.
 
 Also there's a bunch of unused space on my screen at the moment. Something needs to go in there!
 
+If you want to try this you'll need to install circuitpython on your Pico W - you can download the latest version here:
+
+https://circuitpython.org/board/raspberry_pi_pico_w/
+
+You can download the driver bundle to go with it here:
+
+https://circuitpython.org/libraries
+
+And if you need a step by step on how to use Circuitpython with your Pico W and an LED matrix you can find help here:
+
+https://learn.adafruit.com/rgb-led-matrices-matrix-panels-with-circuitpython
+
 You will need to add to your circuitpython "lib" folder the following files from the Circuitpython bundle:
 
 - adafruit_ntp.mpy
